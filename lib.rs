@@ -1,16 +1,16 @@
 
 trait Challenge {
-    /// Données en entrée du challenge
+    /// Donnï¿½es en entrï¿½e du challenge
     type Input;
-    /// Données en sortie du challenge
+    /// Donnï¿½es en sortie du challenge
     type Output;
     /// Nom du challenge
     fn name() -> String;
     /// Create a challenge from the specific input
     fn new(input: Self::Input) -> Self;
-    /// Résout le challenge
+    /// Rï¿½sout le challenge
     fn solve(&self) -> Self::Output;
-    /// Vérifie qu'une sortie est valide pour le challenge
+    /// Vï¿½rifie qu'une sortie est valide pour le challenge
     fn verify(&self, answer: &Self::Output) -> bool;
 }
 #[derive(Debug)]
@@ -59,7 +59,7 @@ pub trait Message {
 struct Welcome {
     version : u8,
 }
-
+#[derive(Serialize, Deserialize, Debug)]
 struct Subscribe {
     name : String,
 }
@@ -140,17 +140,17 @@ fn main() {
 ///////////////////////
 
 trait Challenge {
-    /// Données en entrée du challenge
+    /// Donnï¿½es en entrï¿½e du challenge
     type Input;
-    /// Données en sortie du challenge
+    /// Donnï¿½es en sortie du challenge
     type Output;
-    /// Nom du challenge
+    /// Nom du challengez
     fn name() -> String;
     /// Create a challenge from the specific input
     fn new(input: Self::Input) -> Self;
-    /// Résout le challenge
+    /// Rï¿½sout le challenge
     fn solve(&self) -> Self::Output;
-    /// Vérifie qu'une sortie est valide pour le challenge
+    /// Vï¿½rifie qu'une sortie est valide pour le challenge
     fn verify(&self, answer: &Self::Output) -> bool;
 }
 
