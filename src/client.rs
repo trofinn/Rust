@@ -247,7 +247,6 @@ fn play_rounds(mut stream : &TcpStream) {
                     Message::Challenge(data) => {
                         match data {
                             Challenge::MD5HashCash(challenge) => {
-                                println!("\n AICI BA \n {:?}",&challenge);
                                 let md5hashcash = MD5HashCash::new(challenge);
                                 let output = MD5HashCash::solve(&md5hashcash);
                                 let challenge_answer = ChallengeAnswer::MD5HashCash(output);
