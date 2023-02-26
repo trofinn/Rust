@@ -1,12 +1,15 @@
 use std::{net::TcpStream, io::{Write, Read}};
+use serde_json::Error;
+
 use crate::md5hashcash::Message;
 
-pub fn serialize_and_send_message(mut stream : &TcpStream, message : Message) {
-    let serialized = serde_json::to_string(&message).unwrap();     
+pub fn serialize_and_send_message(mut stream : &TcpStream, message : Message) -> Result<(), Error>{
+    let serialized = serde_json::to_string(&message)?;     
     let len = serialized.len() as u32;
     let _message_bytes = stream.write(&len.to_be_bytes()); 
     let _message_write = stream.write(serialized.as_bytes());
     println!("{:?}",serialized);
+    Ok(())
 }
 
 pub fn read_message(mut stream : &TcpStream) -> String{

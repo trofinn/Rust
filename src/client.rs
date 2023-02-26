@@ -1,9 +1,12 @@
 use std::io;
 use std::net::TcpStream;
+use std::num::ParseIntError;
 
 mod md5hashcash;
 mod md5implementation;
 mod connexions;
+use serde_json::Error;
+
 use crate::connexions::*;
 use crate::md5hashcash::*;
 use crate::md5implementation::*;
@@ -29,13 +32,13 @@ fn main() -> Result<(), io::Error> {
 
  
 
-fn inscription(stream : &TcpStream, _name : String) -> Result<i32, io::Error>{
+fn inscription(stream : &TcpStream, _name : String) -> Result<i32, Error>{
 
     // HELLO TO THE SERVER
 
     let message = Message::Hello;
 
-    serialize_and_send_message(stream, message);
+    serialize_and_send_message(stream, message)?;
 
     // WELCOME
     read_message(stream);
@@ -43,7 +46,7 @@ fn inscription(stream : &TcpStream, _name : String) -> Result<i32, io::Error>{
     // SUBSCRIBE PLAYER
     let subscribe = Subscribe { name : "TEST".to_string() };
     let message = Message::Subscribe(subscribe);
-    serialize_and_send_message(stream, message);
+    serialize_and_send_message(stream, message)?;
     
     
     // SUBSCRIBE RESULT
@@ -54,7 +57,7 @@ fn inscription(stream : &TcpStream, _name : String) -> Result<i32, io::Error>{
 
 
 
-fn play_rounds(stream : &TcpStream) {
+fn play_rounds(stream : &TcpStream) -> Option<Result<i32,ParseIntError>>{
     
         let deserialized = serde_json::from_str::<Message>(&read_message(&stream));
         print!("\n{:?}\n",deserialized);
@@ -67,13 +70,13 @@ fn play_rounds(stream : &TcpStream) {
                             Challenge::MD5HashCash(challenge) => {
                                 let md5hashcash = MD5HashCash::new(challenge);
                                 let output = MD5HashCash::solve(&md5hashcash);
-                                let challenge_answer = ChallengeAnswer::MD5HashCash(output);
+                                let challenge_answer = ChallengeAnswer::MD5HashCash(output.ok()?);
                                 let challenge_result = ChallengeResult {
                                     answer : challenge_answer,
                                     next_target : next_target.clone(),
                                 };
                                 let message = Message::ChallengeResult(challenge_result);
-                                serialize_and_send_message(&stream, message);
+                                serialize_and_send_message(&stream, message).ok()?;
                             }
                         }
                     },
@@ -104,4 +107,5 @@ fn play_rounds(stream : &TcpStream) {
             }
             Err(_error) => { println!("TRY AGAIN");}
         };
+    Some(Ok(1)) 
 }

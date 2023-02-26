@@ -4,22 +4,23 @@ mod connexions;
 use std::io;
 use std::net::TcpListener;
 use std::net::TcpStream;
+use std::num::ParseIntError;
 
 use crate::connexions::*;
 use crate::md5hashcash::*;
 
 
-fn handle_inscription(stream : &TcpStream, mut public_leaderboard : PublicLeaderBoard) -> Result<PublicLeaderBoard, io::Error> {
+fn handle_inscription(stream : &TcpStream, mut public_leaderboard : PublicLeaderBoard) -> Option<Result<PublicLeaderBoard, ParseIntError>> {
     
     loop {
-        let deserialized = serde_json::from_str::<Message>(&read_message(&stream))?;
+        let deserialized = serde_json::from_str::<Message>(&read_message(&stream)).ok()?;
         match deserialized {
             received_message => {
                 match received_message {
                     Message::Hello => {
                         let welcome = Welcome { version : 1};
                         let message = Message::Welcome(welcome);
-                        serialize_and_send_message(stream, message);
+                        serialize_and_send_message(stream, message).ok()?;
                     }
                     Message::Subscribe(received_message) => {
                         let public_player = PublicPlayer {
@@ -47,7 +48,7 @@ fn handle_inscription(stream : &TcpStream, mut public_leaderboard : PublicLeader
                             }
                         }
                         let message = Message::SubscribeResult(subscribe_result);
-                        serialize_and_send_message(stream, message);
+                        serialize_and_send_message(stream, message).ok()?;
                         println!("{:?}",&public_leaderboard);
                     }
                     Message::Challenge(_) => {},
@@ -60,7 +61,7 @@ fn handle_inscription(stream : &TcpStream, mut public_leaderboard : PublicLeader
                     Message::EndOfGame(_) => {}
                     Message::StartServer => {
                         println!("Start signal received\n");
-                        return Ok(public_leaderboard)
+                        return Some(Ok(public_leaderboard))
                     }
                 }
             }
@@ -69,15 +70,15 @@ fn handle_inscription(stream : &TcpStream, mut public_leaderboard : PublicLeader
 }
 
 
-fn handle_client(stream: &TcpStream) -> Result<(), io::Error>{
+fn handle_client(stream: &TcpStream) -> Option<Result<(), io::Error>>{
 
     
     // RECEIVING HELLO FROM THE CLIENT
     let public_players : Vec<PublicPlayer>  = vec![];
     let mut public_leaderboard = PublicLeaderBoard(public_players);
-    public_leaderboard = handle_inscription(stream,public_leaderboard)?;
-    println!("aaa{:?}",public_leaderboard);
-    Ok(())  
+    public_leaderboard = handle_inscription(stream,public_leaderboard)?.ok()?;
+    println!("{:?}",public_leaderboard);
+    Some(Ok(()))  
 }
 
 fn main() -> Result<(), io::Error>{
@@ -85,5 +86,5 @@ fn main() -> Result<(), io::Error>{
     for stream in listener.incoming() {
         handle_client(&stream?);
     }
-    Ok(())
+   Ok(())
 }
