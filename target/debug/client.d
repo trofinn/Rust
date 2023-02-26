@@ -1,1 +1,1 @@
-C:\Users\33634\Desktop\rust\target\debug\client.exe: C:\Users\33634\Desktop\rust\src\client.rs
+C:\Users\33634\Desktop\rust\target\debug\client.exe: C:\Users\33634\Desktop\rust\src\client.rs C:\Users\33634\Desktop\rust\src\connexions.rs C:\Users\33634\Desktop\rust\src\md5hashcash.rs C:\Users\33634\Desktop\rust\src\md5implementation.rs
