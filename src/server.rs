@@ -1,6 +1,7 @@
 mod md5hashcash;
 mod md5implementation;
 mod connexions;
+use std::io;
 use std::net::TcpListener;
 use std::net::TcpStream;
 
@@ -8,12 +9,12 @@ use crate::connexions::*;
 use crate::md5hashcash::*;
 
 
-fn handle_inscription(stream : &TcpStream, mut public_leaderboard : PublicLeaderBoard) -> PublicLeaderBoard {
+fn handle_inscription(stream : &TcpStream, mut public_leaderboard : PublicLeaderBoard) -> Result<PublicLeaderBoard, io::Error> {
     
     loop {
-        let deserialized = serde_json::from_str::<Message>(&read_message(&stream));
+        let deserialized = serde_json::from_str::<Message>(&read_message(&stream))?;
         match deserialized {
-            Ok(received_message) => {
+            received_message => {
                 match received_message {
                     Message::Hello => {
                         let welcome = Welcome { version : 1};
@@ -59,38 +60,30 @@ fn handle_inscription(stream : &TcpStream, mut public_leaderboard : PublicLeader
                     Message::EndOfGame(_) => {}
                     Message::StartServer => {
                         println!("Start signal received\n");
-                        return public_leaderboard
+                        return Ok(public_leaderboard)
                     }
                 }
             }
-            Err(_err) => { panic!("error deserializing the message\n");}
         }
     }
-    
 }
 
 
-fn handle_client(stream: &TcpStream) {
+fn handle_client(stream: &TcpStream) -> Result<(), io::Error>{
 
     
     // RECEIVING HELLO FROM THE CLIENT
     let public_players : Vec<PublicPlayer>  = vec![];
     let mut public_leaderboard = PublicLeaderBoard(public_players);
-    public_leaderboard = handle_inscription(stream,public_leaderboard);
-    println!("aaa{:?}",public_leaderboard);    
+    public_leaderboard = handle_inscription(stream,public_leaderboard)?;
+    println!("aaa{:?}",public_leaderboard);
+    Ok(())  
 }
 
-fn main() {
-    let listener = TcpListener::bind("127.0.0.1:7878");
-    match listener {
-        Ok(listener) => {
-            for stream in listener.incoming() {
-                match stream {
-                    Ok(stream) => handle_client(&stream),
-                    Err(error) => panic!("Problem looping through the connexions: {:?}", error)
-                };
-            }
-        },
-        Err(error) => panic!("Problem creating the bind: {:?}",error)
-    };
+fn main() -> Result<(), io::Error>{
+    let listener = TcpListener::bind("127.0.0.1:7878")?;
+    for stream in listener.incoming() {
+        handle_client(&stream?);
+    }
+    Ok(())
 }
