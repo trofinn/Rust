@@ -9,7 +9,7 @@ pub struct Subscribe {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct PublicLeaderBoard(pub Vec<PublicPlayer>);
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(PartialEq, Serialize, Deserialize, Debug)]
 pub struct PublicPlayer {
     pub name: String,
     pub stream_id: String,

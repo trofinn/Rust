@@ -1,3 +1,4 @@
+use std::io;
 use std::net::TcpStream;
 
 mod md5hashcash;
@@ -7,11 +8,11 @@ use crate::connexions::*;
 use crate::md5hashcash::*;
 use crate::md5implementation::*;
 
-fn main() {
+fn main() -> Result<(), io::Error> {
 
-    let stream = TcpStream::connect("127.0.0.1:7878").unwrap();
+    let stream = TcpStream::connect("127.0.0.1:7878")?;
 
-    inscription(&stream, String::from("Test"));
+    inscription(&stream, String::from("Test"))?;
     
     // ROUNDS :
 
@@ -19,15 +20,16 @@ fn main() {
     
     loop 
     {
-        if count == 15 {break};
+        if count == 15 {break Ok(())};
         play_rounds(&stream);
         count+=1;
     }
+    
 }
 
  
 
-fn inscription(stream : &TcpStream, _name : String) {
+fn inscription(stream : &TcpStream, _name : String) -> Result<i32, io::Error>{
 
     // HELLO TO THE SERVER
 
@@ -46,6 +48,7 @@ fn inscription(stream : &TcpStream, _name : String) {
     
     // SUBSCRIBE RESULT
     read_message(stream);
+    return Ok(1);
 }
 
 
