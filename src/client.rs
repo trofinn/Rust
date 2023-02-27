@@ -18,16 +18,9 @@ fn main() -> Result<(), io::Error> {
     inscription(&stream, String::from("Test"))?;
     
     // ROUNDS :
-
-    let mut count = 0;
-    
-    loop 
-    {
-        if count == 15 {break Ok(())};
+    loop {
         play_rounds(&stream);
-        count+=1;
-    }
-    
+    } 
 }
 
  
@@ -53,8 +46,6 @@ fn inscription(stream : &TcpStream, _name : String) -> Result<i32, Error>{
     read_message(stream);
     return Ok(1);
 }
-
-
 
 
 fn play_rounds(stream : &TcpStream) -> Option<Result<i32,ParseIntError>>{

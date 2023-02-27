@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["read_message",""],["serialize_and_send_message",""]]};
